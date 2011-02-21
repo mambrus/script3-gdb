@@ -1,0 +1,185 @@
+#!/bin/sh 
+# the next line restarts using expect interpreter \
+   exec expect "$0" "$@"
+
+##!/usr/bin/expect --
+#***************************************************************************
+#    Copyright (C) 2006 by Michael Ambrus                                  *
+#    ambrmi09@gmail.com                                                    *
+#                                                                          *
+#    This program is free software; you can redistribute it and/or modify  *
+#    it under the terms of the GNU General Public License as published by  *
+#    the Free Software Foundation; either version 2 of the License, or     *
+#    (at your option) any later version.                                   *
+#                                                                          *
+#    This program is distributed in the hope that it will be useful,       *
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+#    GNU General Public License for more details.                          *
+#                                                                          *
+#    You should have received a copy of the GNU General Public License     *
+#    along with this program; if not, write to the                         *
+#    Free Software Foundation, Inc.,                                       *
+#    59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+#***************************************************************************/
+
+##!/usr/bin/expect --
+
+# Interactive and non-interactive translator for GDB which enables non 
+# hardware break-point aware debug interfaces to use harware supported 
+# breakpoints
+
+# Version 0.2
+# michael.ambrus@maquet.com
+
+	exp_internal 0
+	log_user 0
+	exp_internal -f "~/gdb-wrapper-int.log" 0
+	set logfile [open "~/gdb-wrapper.log" "a"]
+
+	set lastBPid 0
+	
+	set stopInfo(reason)	"TBD"
+	set stopInfo(thread-id)	-1
+	set stopInfo(addr)	"0xFFFE"	
+	set stopInfo(func)	"funcTBD"
+	set stopInfo(args)	"argsTBD"
+	set stopInfo(file)	"fileTBD"
+	set stopInfo(line)	"lineTBD"
+
+	trap {
+		puts $logfile "--> SIGINT trapped\n"
+		flush $logfile
+		send "\003"
+	} SIGINT
+	 
+	puts $logfile "\n\n"
+	puts $logfile ">>> Starting GDB-wrapper with following arguments:"
+	puts $logfile "1: [lindex $argv 0]"
+	set ArgS [lindex $argv 0]
+	set argc [llength $argv]
+
+	
+	for {set i 1} {$i < $argc} {incr i} {
+		puts $logfile "[expr $i + 1]: [lindex $argv $i]"
+		set ArgS "$ArgS [lindex $argv $i]"
+	}
+	puts $logfile "--------------------------------------------------------"
+	puts $logfile ">>> Argument string passed: $ArgS"
+	puts $logfile "--------------------------------------------------------"
+
+	flush $logfile
+
+	spawn arm-elf-gdb [lindex $argv 0] [lindex $argv 1] [lindex $argv 2] [lindex $argv 3] [lindex $argv 4] [lindex $argv 5] [lindex $argv 6] [lindex $argv 7] [lindex $argv 8] [lindex $argv 9]
+
+
+	puts $logfile ">>> Spawnded the main GDB process. Interact in progress"
+	flush $logfile
+
+	# Handling also escape-sequences that would be translated to signals in cooked mode
+
+	set cmd_exec_step_pending 0
+	interact {
+		#Maching patterns sent by the client. I.e. the IDE (Eclipse, KDBG e.t.a.)
+		\003 {
+			#Not sure this works any more doue to longest mach rule (regex)
+			puts $logfile "--> ETX/Ctrl-C i.e. SIGINT in cooked mode\n"
+			flush $logfile
+			send "\003"
+		}
+		-re "(\[^\n\]+)\n" {
+			set inCmd $interact_out(1,string)
+
+			set cmd_exec_step_pending [regexp -- "-exec-step" $inCmd]
+			if { !($cmd_exec_step_pending == 1) } {
+				set cmd_exec_step_pending [regexp -- "-exec-finish" $inCmd]
+			}
+			if { !($cmd_exec_step_pending == 1) } {
+				set cmd_exec_step_pending [regexp -- "-exec-next" $inCmd]
+			}
+			if { $cmd_exec_step_pending == 1 } {
+				regsub -- ".*(\[0-9\]+)(-exec-step|-exec-finish|-exec-next).*" $inCmd {\1} fakeID
+				puts $logfile "-!- Pending 'exec-<cmdd>'. Will supress warning that follows"; flush $logfile
+				puts $logfile "-!- fake ID is $fakeID"; flush $logfile
+			}
+			regsub -- "break-insert" $inCmd {& -h} tempS
+			if { $inCmd != $tempS } {
+				puts $logfile "-!- A 'break-insert' has been replaced with a 'break-insert -h'"
+				puts $logfile "		Was: $inCmd"
+				puts $logfile "		Now: $tempS"; flush $logfile
+				puts $logfile "--- Additional stop info (set by previous reply):"
+				puts $logfile "		reason:	 $stopInfo(reason)"
+				puts $logfile "		thread-id: $stopInfo(thread-id)"
+				puts $logfile "		addr:		$stopInfo(addr)"
+				puts $logfile "		func:		$stopInfo(func)"
+				puts $logfile "		args:		$stopInfo(args)"
+				puts $logfile "		file:		$stopInfo(file)"
+				puts $logfile "		line:		$stopInfo(line)"
+				flush $logfile
+			}
+			set inCmd $tempS
+
+			regsub -- "break\[^-\]" $inCmd "h&" tempS
+			if { $inCmd != $tempS } {
+				puts $logfile "-!- A 'break' has been replaced with a 'hbreak'"
+				puts $logfile "		Was: $inCmd"
+				puts $logfile "		Now: $tempS"; flush $logfile
+			}
+			set inCmd $tempS
+
+			send -raw "$inCmd\n"
+			puts $logfile "--> $inCmd"; flush $logfile
+		}
+
+		-o
+		#Maching patterns sent by the cross GDB program (arm-elf-gdb e.t.a.)
+		-re "\[0-9]+.stopped,reason=\"(.*)\",thread-id=\"(.*)\",frame=\{addr=\"(.*)\",func=\"(.*)\",args=\\\[(.*)\\\],file=\"(.*)\",line=\"(.*)\"" {
+			send_user $interact_out(0,string)
+			puts $logfile "Stopped:\n"
+			puts $logfile $interact_out(0,string)
+			puts $logfile "\n"
+			flush $logfile
+			
+			set stopInfo(reason)	$interact_out(1,string)
+			set stopInfo(thread-id)	$interact_out(2,string)
+			set stopInfo(addr)	$interact_out(3,string)
+			set stopInfo(func)	$interact_out(4,string)
+			set stopInfo(args)	$interact_out(5,string)
+			set stopInfo(file)	$interact_out(6,string)
+			set stopInfo(line)	$interact_out(7,string)
+
+		}
+		-re "\[0-9]+.done,bkpt=\{number=\"(\[0-9]+)\"," {
+			send_user $interact_out(0,string)
+			puts $logfile "Breakpoint was set:\n"
+			puts $logfile $interact_out(0,string)
+			puts $logfile "\n"
+			set lastBPid $interact_out(1,string)
+			puts $logfile "$interact_out(1,string) $lastBPid"
+			puts $logfile "\n"
+			flush $logfile
+		}
+		-re "(.*)\r\n" {
+			set outRply $interact_out(1,string)
+
+			set hasWarning [regexp -- "Warning:" $outRply]
+			if { ($cmd_exec_step_pending == 1) && ($hasWarning == 1) } {
+				puts $logfile "-!- Pending 'exec-step'. supressed warning" 
+				flush $logfile
+				#Create face stop message
+				regsub -- ".*(0x....).*" $outRply {\1} fakeAdd
+
+				set outRply "$fakeID*stopped,reason=\"breakpoint-hit\",bkptno=\"1\",thread-id=\"0\",frame=\{addr=\"$fakeAdd\",func=\"_tk_main\",args=[],file=\"src/tk.c\",fullname=\"/home/ambrmi09/tinker/aTinkerProject/kernel/src/tk.c\",line=\"1355\"\}\r\n(gdb) \r\n>"
+				set cmd_exec_step_pending 0
+				#puts $logfile "<<< $outRply"; flush $logfile
+				puts $logfile "-!- fakeID: $fakeID, fakeAdd: $fakeAdd" ; flush $logfile
+			}
+			send_user -raw $outRply\n
+			puts $logfile "<<< $outRply"; flush $logfile
+		}
+	}
+
+	puts $logfile ">>> Ending GDB-wrapper"
+	flush $logfile
+	close $logfile
+

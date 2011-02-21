@@ -1,0 +1,301 @@
+#!/bin/sh
+# the next line restarts using expect interpreter \
+   exec expect "$0" "$@"
+
+##!/usr/bin/expect --
+#***************************************************************************
+#    Copyright (C) 2011 by Michael Ambrus                                  *
+#    ambrmi09@gmail.com                                                    *
+#                                                                          *
+#    This program is free software; you can redistribute it and/or modify  *
+#    it under the terms of the GNU General Public License as published by  *
+#    the Free Software Foundation; either version 2 of the License, or     *
+#    (at your option) any later version.                                   *
+#                                                                          *
+#    This program is distributed in the hope that it will be useful,       *
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+#    GNU General Public License for more details.                          *
+#                                                                          *
+#    You should have received a copy of the GNU General Public License     *
+#    along with this program; if not, write to the                         *
+#    Free Software Foundation, Inc.,                                       *
+#    59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+#***************************************************************************/
+
+##!/usr/bin/expect --
+
+# Interactive and non-interactive translator for GDB which enables
+# a "side-door"
+
+#Uncomment any of the following below
+set LOG_FNAME "/tmp/gdb_tap"
+#set LOG_FNAME "/tmp/gdb_tap-[pid]"
+exp_internal 0
+log_user 0
+exp_internal -f ${LOG_FNAME}-int.log 0
+set logfile [open ${LOG_FNAME}.log "a"]
+
+puts $logfile "gdb_tap started"; flush $logfile
+
+#Get the GDB binary to use from the environment
+set gdb_bin			$env(GDB_BIN)
+set servlet_bin		tcp.server.gen.servlet.exp
+set servlet_port    5555
+
+#trap {
+#	puts $logfile "--> SIGINT trapped\n"
+#	flush $logfile
+#	send "\003"
+#} SIGINT
+
+puts $logfile "\n\n"
+puts $logfile ">>> Starting GDB-wrapper with following arguments:"
+set ArgS [lindex $argv 0]
+set argc [llength $argv]
+
+#puts $logfile "1: [lindex $argv 0]"
+#puts $logfile "1: $ArgS"
+
+for {set i 0} {$i < $argc} {incr i} {
+	puts $logfile "[expr $i + 1]: [lindex $argv $i]"
+	set ArgS "$ArgS [lindex $argv $i]"
+}
+puts $logfile "--------------------------------------------------------"
+puts $logfile ">>> Argument string passed: $ArgS"
+puts $logfile "--------------------------------------------------------"
+
+flush $logfile
+
+#Spawning the TCP servlet
+spawn $servlet_bin -p $servlet_port
+set servlet_id $spawn_id
+puts $logfile ">>> Spawnded the TCP server: $servlet_bin / $servlet_id. Port=$servlet_port"; flush $logfile
+
+#set timeout 0
+#expect {
+#	-i "$servlet_id" -re ".+" {
+#		puts $logfile ">>> Flushing servlet buffer to log (if any)"
+#		puts $logfile $expect_out(buffer)
+#		exp_continue
+#	}
+#}
+
+switch -- $argc \
+	1 {
+		puts $logfile ">>> Spawning with 1 arg"; flush $logfile
+		spawn $gdb_bin \
+			[lindex $argv 0]
+	} 2 {
+		puts $logfile ">>> Spawning with 2 arg"; flush $logfile
+		spawn $gdb_bin \
+			[lindex $argv 0] \
+			[lindex $argv 1]
+	} 3 {
+		puts $logfile ">>> Spawning with 3 arg"; flush $logfile
+		spawn $gdb_bin \
+			[lindex $argv 0] \
+			[lindex $argv 1] \
+			[lindex $argv 2]
+	} 4 {
+		puts $logfile ">>> Spawning with 4 arg"; flush $logfile
+		spawn $gdb_bin \
+			[lindex $argv 0] \
+			[lindex $argv 1] \
+			[lindex $argv 2] \
+			[lindex $argv 3]
+	} 5 {
+		puts $logfile ">>> Spawning with 5 arg"; flush $logfile
+		spawn $gdb_bin \
+			[lindex $argv 0] \
+			[lindex $argv 1] \
+			[lindex $argv 2] \
+			[lindex $argv 3] \
+			[lindex $argv 4]
+	} 6 {
+		puts $logfile ">>> Spawning with 6 arg"; flush $logfile
+		spawn $gdb_bin \
+			[lindex $argv 0] \
+			[lindex $argv 1] \
+			[lindex $argv 2] \
+			[lindex $argv 3] \
+			[lindex $argv 4] \
+			[lindex $argv 5]
+	} 7 {
+		puts $logfile ">>> Spawning with 7 arg"; flush $logfile
+		spawn $gdb_bin \
+			[lindex $argv 0] \
+			[lindex $argv 1] \
+			[lindex $argv 2] \
+			[lindex $argv 3] \
+			[lindex $argv 4] \
+			[lindex $argv 5] \
+			[lindex $argv 6]
+	} 8 {
+		puts $logfile ">>> Spawning with 8 arg"; flush $logfile
+		spawn $gdb_bin \
+			[lindex $argv 0] \
+			[lindex $argv 1] \
+			[lindex $argv 2] \
+			[lindex $argv 3] \
+			[lindex $argv 4] \
+			[lindex $argv 5] \
+			[lindex $argv 6] \
+			[lindex $argv 7]
+	} 9 {
+		puts $logfile ">>> Spawning with 9 arg"; flush $logfile
+		spawn $gdb_bin \
+			[lindex $argv 0] \
+			[lindex $argv 1] \
+			[lindex $argv 2] \
+			[lindex $argv 3] \
+			[lindex $argv 4] \
+			[lindex $argv 5] \
+			[lindex $argv 6] \
+			[lindex $argv 7] \
+			[lindex $argv 8]
+	} 10 {
+		puts $logfile ">>> Spawning with 10 arg"; flush $logfile
+		spawn $gdb_bin \
+			[lindex $argv 0] \
+			[lindex $argv 1] \
+			[lindex $argv 2] \
+			[lindex $argv 3] \
+			[lindex $argv 4] \
+			[lindex $argv 5] \
+			[lindex $argv 6] \
+			[lindex $argv 7] \
+			[lindex $argv 8] \
+			[lindex $argv 9]
+	} default {
+		puts $logfile "Can only andle 1-10 arguments currently. Sorry!"
+		flush $logfile
+		close $logfile
+		exit 2
+	}
+
+set gdb_id $spawn_id
+puts $logfile ">>> Spawnded the main GDB process: $gdb_bin / $gdb_id"; flush $logfile
+
+set prompt "\\(gdb\\)|>|\\(kdbg\\)"
+#set prompt "gdb|>|kdbg"
+
+#set timeout 1000
+#set prompt "gdb\\)"
+expect {
+	-i "$gdb_id" -re ".+$prompt" {
+		puts $logfile "<-- GDB: $expect_out(buffer)"; flush $logfile
+		send_user -raw $expect_out(buffer)
+		send -i $servlet_id $expect_out(buffer)
+	}
+}
+set timeout 3600
+set connected 0
+
+expect {
+	#-i "$user_spawn_id" -re "(.+)\n" 
+	-i "$user_spawn_id" -re "file (\[\[:print:\]\]+)\n" {
+		puts $logfile "#-> stdin: $expect_out(0,string)"; flush $logfile
+		send -i $gdb_id "$expect_out(0,string)"
+		expect {
+			-i "$gdb_id" -re "(Reading)(.+)(done\.)" {
+			#-i "$gdb_id" -re "(.+)($prompt)" 
+				puts $logfile "<-- GDB: $expect_out(0,string)"; flush $logfile
+				send_user $expect_out(0,string)
+				send -i $servlet_id $expect_out(0,string)
+			}
+		}
+		exp_continue
+	}
+	-i "$user_spawn_id" -re "(\[\[:print:\]\]+)\n" {
+		puts $logfile "--> stdin: $expect_out(0,string)"; flush $logfile
+		send -i $gdb_id -raw "$expect_out(0,string)\r"
+		expect {
+			-i "$gdb_id" -re "($prompt)" {
+				puts $logfile "<-- GDB: $expect_out(0,string)"; flush $logfile
+				send_user "$expect_out(0,string)\r"
+				send -i $servlet_id $expect_out(0,string)
+			}
+		}
+		exp_continue
+	}
+	#-i "$gdb_id" -re "(\[\[:print:\]\]+)\r\n" 
+#			-i "$gdb_id" -re "(\[\[:print:\]\]*)($prompt)" {
+#				puts $logfile "<-- GDB: $expect_out(0,string)"; flush $logfile
+#				send_user $expect_out(0,string)
+#				send -i $servlet_id $expect_out(0,string)
+#				exp_continue
+#			}
+	-i "$gdb_id" -re "(\[\[:print:\]\]+)\r\n" {
+	#-i "$gdb_id" -re ".+" 
+		puts $logfile "<<< GDB: $expect_out(0,string)"; flush $logfile
+		send_user -raw $expect_out(0,string)
+		send -i $servlet_id $expect_out(0,string)
+		exp_continue
+	}
+}
+exit 0
+expect {
+	-i "$servlet_id" -re "#con.*$" {
+		puts $logfile ">>> TCP command: $expect_out(buffer)"; flush $logfile
+		set connected 1
+		exp_continue
+	}
+	-i "$servlet_id" -re "#discon.*$" {
+		puts $logfile ">>> TCP command: $expect_out(buffer)"; flush $logfile
+		set connected 0
+		exp_continue
+	}
+	-i "$servlet_id" -re ".+" {
+		puts $logfile ">>> TCP: $expect_out(buffer)"; flush $logfile
+		# If TCP servlet not connected, buffer will just echo back. This prevent
+		# that behaviour.
+		if { $connected == 1 } {
+			send -i $gdb_id $expect_out(buffer)
+		} else {
+			puts $logfile "### Echo prevention. TCP message engulfed! "; flush $logfile
+		}
+		exp_continue
+	}
+}
+exit 0
+expect {
+	-i "$user_spawn_id" -re "(file \[\[:print:\]\]+)\n" {
+		puts $logfile "#-> stdin: $expect_out(1,string)"; flush $logfile
+		#send -i $gdb_id $expect_out(1,string)
+		send -i $gdb_id "file \"/home2/mambrus/stm32/projects/stm_h103/main.out\""
+		
+		expect {
+			-i "$gdb_id" -re "(.+)(done)\." {
+				puts $logfile "<## GDB: $expect_out(buffer)"; flush $logfile
+				send_user -raw  $expect_out(buffer)
+				send -i $servlet_id $expect_out(buffer)
+			}
+		}
+		exp_continue
+	}
+	-i "$user_spawn_id" -re "(\[\[:print:\]\]+)\n" {
+		puts $logfile "--> stdin: $expect_out(1,string)"; flush $logfile
+		send -i $gdb_id -raw "$expect_out(1,string)\r"
+		expect {
+			-i "$gdb_id" -re "(.+)($prompt)" {
+				puts $logfile "<## GDB: $expect_out(buffer)"; flush $logfile
+				send_user -raw  $expect_out(buffer)
+				send -i $servlet_id $expect_out(buffer)
+			}
+		}
+		exp_continue
+	}
+	-i "$gdb_id" -re ".+" {
+	#-i "$gdb_id" -re "(\[\[:print:\]\])\r\n" 
+		puts $logfile "<-- GDB: $expect_out(buffer)"; flush $logfile
+		send_user -raw $expect_out(buffer)
+		send -i $servlet_id $expect_out(buffer)
+		exp_continue
+	}
+}
+exit 0
+puts $logfile ">>> Ending GDB-wrapper"
+flush $logfile
+close $logfile
+
