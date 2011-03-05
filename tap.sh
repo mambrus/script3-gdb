@@ -16,22 +16,20 @@ TAP_SH="tap.sh"
 # The script is a core part of the 'script3' script library
 
 function tap() {
-	echo "Shabang!"
-	tcp_tap "$@"
+	exec tcp_tap "$@"
 }
 
 source s3.ebasename.sh
 if [ "$TAP_SH" == $( ebasename $0 ) ]; then
 	#Not sourced, do something with this.
 
-	export TCP_TAP_EXEC="arm-elf-gdb"
-	export TCP_TAP_PORT="6161"
-	export TCP_TAP_LOG_PATH="/dev"
-	export TCP_TAP_LOG_STDIN="null"
-	export TCP_TAP_LOG_STDOUT="null"
-	export TCP_TAP_LOG_STDERR="null"
-	export TCP_TAP_LOG_PARENT="null"
-	export TCP_TAP_LOG_CHILD="null"
+	export TCP_TAP_EXEC="/skiff/bin/arm-hixs-elf-gdb"
+	export TCP_TAP_PORT="8088"
+	export TCP_TAP_LOG_STDIN="/dev/null"
+	export TCP_TAP_LOG_STDOUT="/dev/null"
+	export TCP_TAP_LOG_STDERR="/dev/null"
+	export TCP_TAP_LOG_PARENT="/dev/null"
+	export TCP_TAP_LOG_CHILD="/dev/null"
 
 	tap "$@"
 	exit $?
