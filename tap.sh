@@ -25,11 +25,11 @@ if [ "$TAP_SH" == $( ebasename $0 ) ]; then
 
 	export TCP_TAP_EXEC="/skiff/bin/arm-hixs-elf-gdb"
 	export TCP_TAP_PORT="8088"
-	export TCP_TAP_LOG_STDIN="/dev/null"
-	export TCP_TAP_LOG_STDOUT="/dev/null"
-	export TCP_TAP_LOG_STDERR="/dev/null"
-	export TCP_TAP_LOG_PARENT="/dev/null"
-	export TCP_TAP_LOG_CHILD="/dev/null"
+	#export TCP_TAP_LOG_STDIN="/dev/null"
+	#export TCP_TAP_LOG_STDOUT="/dev/null"
+	#export TCP_TAP_LOG_STDERR="/dev/null"
+	#export TCP_TAP_LOG_PARENT="/dev/null"
+	#export TCP_TAP_LOG_CHILD="/dev/null"
 
 	tap "$@"
 	exit $?
