@@ -1,3 +1,4 @@
 gdb_ebp.exp
 gdb_tap.exp
+isym.sh
 tap.sh
