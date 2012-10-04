@@ -30,6 +30,7 @@ function tap() {
 if [ "$TAP_SH" == $( basename $0 ) ]; then
 	#Not sourced, do something with this.
 
+	#export TCP_TAP_EXEC="$(which arm-eabi-gdb)"
 	export TCP_TAP_EXEC="$(which gdb_arm)"
 	export TCP_TAP_PORT=$(( FIRST_PORT + NR_INUSE ))
 	gdb.telnet.sh localhost $TCP_TAP_PORT $XTERM_DELAY &
