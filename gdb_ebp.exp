@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/sh
 # the next line restarts using expect interpreter \
    exec expect "$0" "$@"
 
@@ -25,8 +25,8 @@
 
 ##!/usr/bin/expect --
 
-# Interactive and non-interactive translator for GDB which enables non 
-# hardware break-point aware debug interfaces to use harware supported 
+# Interactive and non-interactive translator for GDB which enables non
+# hardware break-point aware debug interfaces to use harware supported
 # breakpoints
 
 # Version 0.2
@@ -38,10 +38,10 @@
 	set logfile [open "~/gdb-wrapper.log" "a"]
 
 	set lastBPid 0
-	
+
 	set stopInfo(reason)	"TBD"
 	set stopInfo(thread-id)	-1
-	set stopInfo(addr)	"0xFFFE"	
+	set stopInfo(addr)	"0xFFFE"
 	set stopInfo(func)	"funcTBD"
 	set stopInfo(args)	"argsTBD"
 	set stopInfo(file)	"fileTBD"
@@ -52,14 +52,14 @@
 		flush $logfile
 		send "\003"
 	} SIGINT
-	 
+
 	puts $logfile "\n\n"
 	puts $logfile ">>> Starting GDB-wrapper with following arguments:"
 	puts $logfile "1: [lindex $argv 0]"
 	set ArgS [lindex $argv 0]
 	set argc [llength $argv]
 
-	
+
 	for {set i 1} {$i < $argc} {incr i} {
 		puts $logfile "[expr $i + 1]: [lindex $argv $i]"
 		set ArgS "$ArgS [lindex $argv $i]"
@@ -139,7 +139,7 @@
 			puts $logfile $interact_out(0,string)
 			puts $logfile "\n"
 			flush $logfile
-			
+
 			set stopInfo(reason)	$interact_out(1,string)
 			set stopInfo(thread-id)	$interact_out(2,string)
 			set stopInfo(addr)	$interact_out(3,string)
@@ -164,7 +164,7 @@
 
 			set hasWarning [regexp -- "Warning:" $outRply]
 			if { ($cmd_exec_step_pending == 1) && ($hasWarning == 1) } {
-				puts $logfile "-!- Pending 'exec-step'. supressed warning" 
+				puts $logfile "-!- Pending 'exec-step'. supressed warning"
 				flush $logfile
 				#Create face stop message
 				regsub -- ".*(0x....).*" $outRply {\1} fakeAdd
