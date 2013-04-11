@@ -12,6 +12,7 @@ if [ -z $TAP_SH ]; then
 TAP_SH="gdb.tap.sh"
 FIRST_PORT="8080"
 XTERM_DELAY="1"
+export XTELNET_GEOMETRY="100x62+0+0"
 
 #Number of other sessions allredy in use (collision avoidande)
 NR_INUSE=$(ps -Al | grep tcp_tap | wc -l)
@@ -30,13 +31,15 @@ function tap() {
 if [ "$TAP_SH" == $( basename $0 ) ]; then
 	#Not sourced, do something with this.
 
-	#export TCP_TAP_EXEC="$(which arm-eabi-gdb)"
-	export TCP_TAP_EXEC="$(which gdb_arm)"
+	export TCP_TAP_EXEC="$(which arm-eabi-gdb)"
+	#export TCP_TAP_EXEC="$(which gdb_arm)"
+	#export TCP_TAP_EXEC="$(which gdb)"
 	export TCP_TAP_PORT=$(( FIRST_PORT + NR_INUSE ))
 	gdb.telnet.sh localhost $TCP_TAP_PORT $XTERM_DELAY &
 	export TCP_TAP_LOG_STDIN="/dev/null"
 	export TCP_TAP_LOG_STDOUT="/dev/null"
-	export TCP_TAP_LOG_STDERR="/dev/null"
+	#export TCP_TAP_LOG_STDERR="/dev/null"
+	export TCP_TAP_LOG_STDERR="/tmp/tcpt_stderr"
 	export TCP_TAP_LOG_PARENT="/dev/null"
 	export TCP_TAP_LOG_CHILD="/dev/null"
 
