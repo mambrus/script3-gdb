@@ -15,6 +15,6 @@ TELNET_SH="gdb.telnet.sh"
 SCREEN=$(which screen)
 
 sleep $3
-xterm -geometry ${XTELNET_GEOMETRY} -e ${SCREEN} telnet $1 $2
+xterm ${XTELNET_GEOMETRY} -e ${SCREEN} telnet $1 $2
 
 fi
