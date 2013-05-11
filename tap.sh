@@ -18,7 +18,7 @@ if [ "X${TCP_TAP_PROFILE}" != "X" ]; then
 fi
 
 #Real profile structure is always predicable
-TCP_TAP_PROFILE=.${TAP_SH}_rc
+TCP_TAP_PROFILE=${TAP_SH}_profile.rc
 
 PTS="date +%Y:%j:%T.%N"
 
@@ -28,7 +28,7 @@ function tap() {
 
 function log_tap() {
 	if [ "X$TAP_LOG" == "Xyes" ]; then
-		echo -n "$($PTS) " >> $TAP_LOG_NAME
+		echo -n "[$$] $($PTS) " >> $TAP_LOG_NAME
 		echo "$@" >> $TAP_LOG_NAME
 	fi
 }
@@ -51,14 +51,13 @@ if [ -f "/etc/${TCP_TAP_PROFILE}" ]; then
 	source $F
 	TCP_TAP_READ_FROM="$TCP_TAP_READ_FROM,$F"
 fi
-if [ -f "${HOME}/${TCP_TAP_PROFILE}" ]; then
-	F="${HOME}/${TCP_TAP_PROFILE}"
-	echo "Hej!"
+if [ -f "${HOME}/.${TCP_TAP_PROFILE}" ]; then
+	F="${HOME}/.${TCP_TAP_PROFILE}"
 	source $F
 	TCP_TAP_READ_FROM="$TCP_TAP_READ_FROM,$F"
 fi
-if [ -f "${TCP_TAP_PROFILE}" ]; then
-	F="${TCP_TAP_PROFILE}"
+if [ -f ".${TCP_TAP_PROFILE}" ]; then
+	F=".${TCP_TAP_PROFILE}"
 	source $F
 	TCP_TAP_READ_FROM="$TCP_TAP_READ_FROM,$F"
 fi
@@ -117,6 +116,7 @@ if [ "$TAP_SH" == $( basename $0 ) ]; then
 	export TCP_TAP_LOG_CHILD="/dev/null"
 	log_tap "Exported variables:"
 	log_tap "	TCP_TAP_EXEC=$TCP_TAP_EXEC"
+	log_tap "	TCP_TAP_NICNAME=$TCP_TAP_NICNAME"
 	log_tap "	TCP_TAP_PORT=$TCP_TAP_PORT"
 	log_tap "	TCP_TAP_LOG_STDIN=$TCP_TAP_LOG_STDIN"
 	log_tap "	TCP_TAP_LOG_STDOUT=$TCP_TAP_LOG_STDOUT"
