@@ -103,18 +103,32 @@ if [ "$TAP_SH" == $( basename $0 ) ]; then
 	log_tap "   TCP_TAP_PROFILE=$TCP_TAP_PROFILE"
 	log_tap "   TCP_TAP_PROFILE_SPECIAL=$TCP_TAP_PROFILE_SPECIAL"
 
-	if [ "X$TAP_SIDE_SESSION" == "Xyes" ]; then
-		$TAP_SIDE_SESSION_EXEC localhost $TCP_TAP_PORT $TCP_TAP_XTERM_DELAY &
-	fi
-
+	export TAP_LOG
+	export TAP_LOG_NAME
 	export TCP_TAP_EXEC="$(which ${TCP_TAP_CMD})"
+	export TCP_TAP_NICNAME
 	export TCP_TAP_PORT=$(( TCP_TAP_FIRST_PORT + NR_INUSE ))
 	export TCP_TAP_LOG_STDIN="/dev/null"
 	export TCP_TAP_LOG_STDOUT="/dev/null"
 	export TCP_TAP_LOG_STDERR="/dev/null"
 	export TCP_TAP_LOG_PARENT="/dev/null"
 	export TCP_TAP_LOG_CHILD="/dev/null"
+
+	if [ "X$TAP_SIDE_SESSION" == "Xyes" ]; then
+		LOCAL_IF=$TCP_TAP_NICNAME
+		if [ "X$TCP_TAP_NICNAME" == "X@ANY@" ]; then
+			LOCAL_IF="localhost"
+		fi
+		if [ "X$TCP_TAP_NICNAME" == "X@HOSTNAME@" ]; then
+			LOCAL_IF=$(hostname)
+		fi
+		log_tap "$TAP_SIDE_SESSION_EXEC $LOCAL_IF $TCP_TAP_PORT $TCP_TAP_XTERM_DELAY &"
+		$TAP_SIDE_SESSION_EXEC $LOCAL_IF $TCP_TAP_PORT $TCP_TAP_XTERM_DELAY &
+	fi
+
 	log_tap "Exported variables:"
+	log_tap "   TAP_LOG_NAME=$TAP_LOG_NAME"
+	log_tap "   TAP_LOG=$TAP_LOG"
 	log_tap "	TCP_TAP_EXEC=$TCP_TAP_EXEC"
 	log_tap "	TCP_TAP_NICNAME=$TCP_TAP_NICNAME"
 	log_tap "	TCP_TAP_PORT=$TCP_TAP_PORT"
