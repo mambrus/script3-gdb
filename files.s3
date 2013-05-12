@@ -1,7 +1,0 @@
-.gdb.tap.sh_profile.rc
-connect.sh
-gdb_ebp.exp
-gdb_tap.exp
-isym.sh
-tap.sh
-telnet.sh
