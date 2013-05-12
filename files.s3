@@ -1,7 +1,7 @@
 .gdb.tap.sh_profile.rc
+connect.sh
 gdb_ebp.exp
 gdb_tap.exp
 isym.sh
-remote.sh
 tap.sh
 telnet.sh

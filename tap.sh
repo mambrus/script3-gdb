@@ -70,7 +70,7 @@ fi
 TCP_TAP_FIRST_PORT=${TCP_TAP_FIRST_PORT-"8080"}
 TCP_TAP_XTERM_DELAY=${TCP_TAP_XTERM_DELAY-"1"}
 TCP_TAP_CMD=${TCP_TAP_CMD-"gdb"}
-TAP_LOG_NAME=${TAP_LOG_NAME-"/tmp/.${TAP_SH}.log"}
+TAP_LOG_NAME=${TAP_LOG_NAME-"/tmp/${TAP_SH}.log"}
 TAP_LOG=${TAP_LOG-"yes"}
 TAP_SIDE_SESSION=${TAP_SIDE_SESSION-"no"}
 TAP_SIDE_SESSION_EXEC=${TAP_SIDE_SESSION_EXEC-"gdb.telnet.sh"}
@@ -81,9 +81,17 @@ TCP_TAP_NICNAME=${TCP_TAP_NICNAME-"127.0.0.1"}
 # embed -display here as well.
 #export XTELNET_GEOMETRY=${XTELNET_GEOMETRY-"-geometry 114x58+10+49"}
 
-
 #Number of other sessions already in use (port collision avoidance)
 NR_INUSE=$(ps -Al | grep tcp_tap | wc -l)
+TCP_TAP_PORT=$(( TCP_TAP_FIRST_PORT + NR_INUSE ))
+		
+LOCAL_IF=$TCP_TAP_NICNAME
+if [ "X$TCP_TAP_NICNAME" == "X@ANY@" ]; then
+	LOCAL_IF="localhost"
+fi
+if [ "X$TCP_TAP_NICNAME" == "X@HOSTNAME@" ]; then
+	LOCAL_IF=$(hostname)
+fi
 
 if [ "$TAP_SH" == $( basename $0 ) ]; then
 	#Not sourced, do something with this.
@@ -102,12 +110,13 @@ if [ "$TAP_SH" == $( basename $0 ) ]; then
 	log_tap "   NR_INUSE=$NR_INUSE"
 	log_tap "   TCP_TAP_PROFILE=$TCP_TAP_PROFILE"
 	log_tap "   TCP_TAP_PROFILE_SPECIAL=$TCP_TAP_PROFILE_SPECIAL"
+	log_tap "   LOCAL_IF=$LOCAL_IF"
 
 	export TAP_LOG
 	export TAP_LOG_NAME
 	export TCP_TAP_EXEC="$(which ${TCP_TAP_CMD})"
 	export TCP_TAP_NICNAME
-	export TCP_TAP_PORT=$(( TCP_TAP_FIRST_PORT + NR_INUSE ))
+	export TCP_TAP_PORT
 	export TCP_TAP_LOG_STDIN="/dev/null"
 	export TCP_TAP_LOG_STDOUT="/dev/null"
 	export TCP_TAP_LOG_STDERR="/dev/null"
@@ -115,15 +124,14 @@ if [ "$TAP_SH" == $( basename $0 ) ]; then
 	export TCP_TAP_LOG_CHILD="/dev/null"
 
 	if [ "X$TAP_SIDE_SESSION" == "Xyes" ]; then
-		LOCAL_IF=$TCP_TAP_NICNAME
-		if [ "X$TCP_TAP_NICNAME" == "X@ANY@" ]; then
-			LOCAL_IF="localhost"
-		fi
-		if [ "X$TCP_TAP_NICNAME" == "X@HOSTNAME@" ]; then
-			LOCAL_IF=$(hostname)
-		fi
-		log_tap "$TAP_SIDE_SESSION_EXEC $LOCAL_IF $TCP_TAP_PORT $TCP_TAP_XTERM_DELAY &"
-		$TAP_SIDE_SESSION_EXEC $LOCAL_IF $TCP_TAP_PORT $TCP_TAP_XTERM_DELAY &
+		log_tap "$TAP_SIDE_SESSION_EXEC "\
+				"$LOCAL_IF "\
+				"$TCP_TAP_PORT "\
+				"$TCP_TAP_XTERM_DELAY &"
+		$TAP_SIDE_SESSION_EXEC \
+			$LOCAL_IF \
+			$TCP_TAP_PORT \
+			$TCP_TAP_XTERM_DELAY &
 	fi
 
 	log_tap "Exported variables:"
