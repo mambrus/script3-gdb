@@ -73,7 +73,7 @@ TCP_TAP_CMD=${TCP_TAP_CMD-"gdb"}
 TAP_LOG_NAME=${TAP_LOG_NAME-"/tmp/${TAP_SH}.log"}
 TAP_LOG=${TAP_LOG-"yes"}
 TAP_SIDE_SESSION=${TAP_SIDE_SESSION-"no"}
-TAP_SIDE_SESSION_EXEC=${TAP_SIDE_SESSION_EXEC-"gdb.telnet.sh"}
+TAP_SIDE_SESSION_EXEC=${TAP_SIDE_SESSION_EXEC-"gdb.term.sh"}
 TCP_TAP_NICNAME=${TCP_TAP_NICNAME-"127.0.0.1"}
 
 # Can be used by $TAP_SIDE_SESSION_EXEC
@@ -95,6 +95,11 @@ fi
 
 if [ "$TAP_SH" == $( basename $0 ) ]; then
 	#Not sourced, do something with this.
+
+	XAPPLRESDIR=$(dirname \
+		$(file $0 | \
+			sed -e 's/.*symbolic link to..//' -e 's/.$//'))
+	XAPPLRESDIR="${XAPPLRESDIR}/Xres"
 
 	log_tap "START wrapper: $0 $@"
 	log_tap "Environment read from:"
@@ -122,6 +127,7 @@ if [ "$TAP_SH" == $( basename $0 ) ]; then
 	export TCP_TAP_LOG_STDERR="/dev/null"
 	export TCP_TAP_LOG_PARENT="/dev/null"
 	export TCP_TAP_LOG_CHILD="/dev/null"
+	export XAPPLRESDIR
 
 	if [ "X$TAP_SIDE_SESSION" == "Xyes" ]; then
 		log_tap "$TAP_SIDE_SESSION_EXEC "\
@@ -146,6 +152,7 @@ if [ "$TAP_SH" == $( basename $0 ) ]; then
 	log_tap "	TCP_TAP_LOG_PARENT=$TCP_TAP_LOG_PARENT"
 	log_tap "	TCP_TAP_LOG_CHILD=$TCP_TAP_LOG_CHILD"
 	log_tap "	XTELNET_GEOMETRY=$XTELNET_GEOMETRY"
+	log_tap "	XAPPLRESDIR=$XAPPLRESDIR"
 
 	log_tap "START exec: $@"
 	tap "$@"

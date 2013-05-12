@@ -27,11 +27,11 @@ RLWRAP=$(which rlwrap)
 sleep $3
 
 if [ "X${NC}" != "X" ] && [ "X${RLWRAP}" != "X" ]; then
-	log_tap "xterm ${XTELNET_GEOMETRY} -e ${SCREEN} rlwrap nc $1 $2"
-	xterm ${XTELNET_GEOMETRY} -e ${SCREEN} rlwrap nc $1 $2
+	log_tap "xterm -name gdbterm ${XTELNET_GEOMETRY} -e ${SCREEN} rlwrap nc $1 $2"
+	xterm -name gdbterm ${XTELNET_GEOMETRY} -e ${SCREEN} rlwrap nc $1 $2
 else
-	log_tap "xterm ${XTELNET_GEOMETRY} -e ${SCREEN} telnet $1 $2"
-	xterm ${XTELNET_GEOMETRY} -e ${SCREEN} telnet $1 $2
+	log_tap "xterm -name gdbterm ${XTELNET_GEOMETRY} -e ${SCREEN} telnet $1 $2"
+	xterm -name gdbterm ${XTELNET_GEOMETRY} -e ${SCREEN} telnet $1 $2
 fi
 
 fi

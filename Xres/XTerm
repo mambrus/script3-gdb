@@ -1,0 +1,11 @@
+gdbterm*VT100.translations: #override <Btn1Up>: select-end(PRIMARY, CLIPBOARD, CUT_BUFFER0)
+gdbterm*saveLines: 4096
+gdbterm*scrollBar: true
+gdbterm*rightScrollBar: true
+
+!gdbterm*selectToClipboard: true
+gdbterm*toolBar: true
+gdbterm*background: lightyellow
+gdbterm*foreground: black
+!gdbterm*background: blue
+!gdbterm*foreground: lightyellow
