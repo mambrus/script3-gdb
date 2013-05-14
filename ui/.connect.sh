@@ -30,11 +30,17 @@ Example:
 
 EOF
 }
-	while getopts hp:h: OPTION; do
+	while getopts hp:H: OPTION; do
 		case $OPTION in
 		h)
 			print_connect_help $0
 			exit 0
+			;;
+		H)
+			CON_HOST=$OPTARG
+			;;
+		p)
+			CON_PORT=$OPTARG
 			;;
 		?)
 			echo "Syntax error:" 1>&2
