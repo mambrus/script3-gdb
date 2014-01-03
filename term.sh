@@ -4,12 +4,15 @@
 # Starts telnet to a specific port at a specific time
 # in seconds from now
 
+if [ -z $GDB_TERM_SH ]; then
+GDB_TERM_SH="gdb.term.sh"
+source gdb.tap.sh
 
-if [ -z $TELNET_SH ]; then
+HOST=${1-${TCP_TAP_NICNAME-"ERROR_NO_HOSTNAME_GIVEN_OR_DETECTED"} }
+PORT=${2-${TCP_TAP_FIRST_PORT-"ERROR_NO_PORT_GIVEN_OR_DETECTED"} }
+START_DELAY=${3-"1"}
 
 XTELNET_GEOMETRY=${XTELNET_GEOMETRY-"600x350+0+0"}
-
-TELNET_SH="gdb.telnet.sh"
 
 PTS="date +%Y:%j:%T.%N"
 function log_tap() {
@@ -19,19 +22,22 @@ function log_tap() {
 	fi
 }
 
-#Use screen in-between is available
+#Use screen in-between if available
 SCREEN=$(which screen)
 NC=$(which nc)
 RLWRAP=$(which rlwrap)
 
-sleep $3
+log_tap "$GDB_TERM_SH: delays ${START_DELAY}"
+sleep ${START_DELAY}
+log_tap "$GDB_TERM_SH: starts..."
 
 if [ "X${NC}" != "X" ] && [ "X${RLWRAP}" != "X" ]; then
-	log_tap "xterm -name gdbterm ${XTELNET_GEOMETRY} -e ${SCREEN} rlwrap nc $1 $2"
-	xterm -name gdbterm ${XTELNET_GEOMETRY} -e ${SCREEN} rlwrap nc $1 $2
+	log_tap "$GDB_TERM_SH: xterm -name gdbterm ${XTELNET_GEOMETRY} -e ${SCREEN} rlwrap nc ${HOST} ${PORT}"
+	xterm -name gdbterm ${XTELNET_GEOMETRY} -e ${SCREEN} rlwrap nc ${HOST} ${PORT}
 else
-	log_tap "xterm -name gdbterm ${XTELNET_GEOMETRY} -e ${SCREEN} telnet $1 $2"
-	xterm -name gdbterm ${XTELNET_GEOMETRY} -e ${SCREEN} telnet $1 $2
+	log_tap "$GDB_TERM_SH: xterm -name gdbterm ${XTELNET_GEOMETRY} -e ${SCREEN} telnet ${HOST} ${PORT}"
+	xterm -name gdbterm ${XTELNET_GEOMETRY} -e ${SCREEN} telnet ${HOST} ${PORT}
 fi
+log_tap "$GDB_TERM_SH: exits..."
 
 fi
