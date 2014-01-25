@@ -32,11 +32,22 @@ sleep ${START_DELAY}
 log_tap "$GDB_TERM_SH: starts..."
 
 if [ "X${NC}" != "X" ] && [ "X${RLWRAP}" != "X" ]; then
-	log_tap "$GDB_TERM_SH: xterm -name gdbterm ${XTELNET_GEOMETRY} -e ${SCREEN} rlwrap nc ${HOST} ${PORT}"
-	xterm -name gdbterm ${XTELNET_GEOMETRY} -e ${SCREEN} rlwrap nc ${HOST} ${PORT}
+	if [ "X${TERM}" == "Xxterm" ]; then
+		log_tap "$GDB_TERM_SH: xterm -name gdbterm ${XTELNET_GEOMETRY} -e ${SCREEN} rlwrap nc ${HOST} ${PORT}"
+		xterm -name gdbterm ${XTELNET_GEOMETRY} -e ${SCREEN} rlwrap nc ${HOST} ${PORT}
+	else
+		echo "$GDB_TERM_SH: rlwrap nc ${HOST} ${PORT}"
+		rlwrap nc ${HOST} ${PORT}
+	fi
 else
 	log_tap "$GDB_TERM_SH: xterm -name gdbterm ${XTELNET_GEOMETRY} -e ${SCREEN} telnet ${HOST} ${PORT}"
-	xterm -name gdbterm ${XTELNET_GEOMETRY} -e ${SCREEN} telnet ${HOST} ${PORT}
+	if [ "X${TERM}" == "Xxterm" ]; then
+		log_tap "$GDB_TERM_SH: xterm -name gdbterm ${XTELNET_GEOMETRY} -e ${SCREEN} telnet ${HOST} ${PORT}"
+		xterm -name gdbterm ${XTELNET_GEOMETRY} -e ${SCREEN} telnet ${HOST} ${PORT}
+	else
+		echo "$GDB_TERM_SH: telnet ${HOST} ${PORT}"
+		telnet ${HOST} ${PORT}
+	fi
 fi
 log_tap "$GDB_TERM_SH: exits..."
 
