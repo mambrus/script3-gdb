@@ -7,6 +7,14 @@ gdb_ebp.exp 		Translates breakpoints into HW breakponts on the fly.
 gdb_tab.exp		Connects to rel GDB, but also opens a TCP server to use
 			"on the side"
 
+To make this wrap-tool work it's best, make sure you have the following
+tools installed (the script can't tell you and it accepts no flags and will
+fall-back to something, not as pleasant):
+
+* rlwrap
+* nc
+* screen
+
 SCRIPT3 note:
 -------------
 This project is a script sub-library and is part of a larger project managed
