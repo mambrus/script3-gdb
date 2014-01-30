@@ -46,26 +46,38 @@ function log_tap() {
 # * Pre-set environment variables
 # * Hard coded defaults in this file
 
+
+TCP_TAP_HAS_READ_CONFIG_FROM=">>>>"
 if [ -f "/etc/${TCP_TAP_PROFILE}" ]; then
 	F="/etc/${TCP_TAP_PROFILE}"
 	source $F
-	TCP_TAP_READ_FROM="$TCP_TAP_READ_FROM,$F"
+	TCP_TAP_HAS_READ_CONFIG_FROM="$TCP_TAP_HAS_READ_CONFIG_FROM: $F"
+	#echo "1: ${TCP_TAP_HAS_READ_CONFIG_FROM}"
+	#exit 0
 fi
 if [ -f "${HOME}/.${TCP_TAP_PROFILE}" ]; then
 	F="${HOME}/.${TCP_TAP_PROFILE}"
 	source $F
-	TCP_TAP_READ_FROM="$TCP_TAP_READ_FROM,$F"
+	TCP_TAP_HAS_READ_CONFIG_FROM="$TCP_TAP_HAS_READ_CONFIG_FROM: $F"
+	#echo "2: ${TCP_TAP_HAS_READ_CONFIG_FROM}"
+	#exit 0
 fi
 if [ -f ".${TCP_TAP_PROFILE}" ]; then
 	F=".${TCP_TAP_PROFILE}"
 	source $F
-	TCP_TAP_READ_FROM="$TCP_TAP_READ_FROM,$F"
+	TCP_TAP_HAS_READ_CONFIG_FROM="$TCP_TAP_HAS_READ_CONFIG_FROM: $F"
+	#echo "3: ${TCP_TAP_HAS_READ_CONFIG_FROM}"
+	#exit 0
 fi
 if [ -f "${TCP_TAP_PROFILE_SPECIAL}" ]; then
 	F="${TCP_TAP_PROFILE_SPECIAL}"
 	source $F
-	TCP_TAP_READ_FROM="$TCP_TAP_READ_FROM,$F"
+	TCP_TAP_HAS_READ_CONFIG_FROM="$TCP_TAP_HAS_READ_CONFIG_FROM: $F"
+	#echo "4: ${TCP_TAP_HAS_READ_CONFIG_FROM}"
+	#exit 0
 fi
+#echo "5: ${TCP_TAP_HAS_READ_CONFIG_FROM}"
+#exit 0
 
 TCP_TAP_FIRST_PORT=${TCP_TAP_FIRST_PORT-"8080"}
 TCP_TAP_XTERM_DELAY=${TCP_TAP_XTERM_DELAY-"1"}
@@ -103,7 +115,7 @@ if [ "$TAP_SH" == $( basename $0 ) ]; then
 
 	log_tap "START wrapper: $0 $@"
 	log_tap "Environment read from:"
-	log_tap "   $(echo $TCP_TAP_READ_FROM | sed -e 's/,/\n   /g')"
+	log_tap "   $(echo $TCP_TAP_HAS_READ_CONFIG_FROM | sed -e 's/,/\n   /g')"
 	log_tap "Local variables:"
 	log_tap "   TCP_TAP_FIRST_PORT=$TCP_TAP_FIRST_PORT"
 	log_tap "   TCP_TAP_XTERM_DELAY=$TCP_TAP_XTERM_DELAY"
