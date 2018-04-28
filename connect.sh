@@ -9,7 +9,12 @@ CONNECT_SH="connect.sh"
 
 function connect() {
 	echo "Connecting to ${CON_HOST}:${CON_PORT}"
-	screen rlwrap nc ${CON_HOST} ${CON_PORT}
+	if [ "X$(grep screen <<< $TERM)" == "X" ]; then
+		# Run in screen.session only if not already in screen
+		screen -S "$0" rlwrap nc ${CON_HOST} ${CON_PORT}
+	else
+		rlwrap nc ${CON_HOST} ${CON_PORT}
+	fi
 	echo "Connection ${CON_HOST}:${CON_PORT} ended"
 }
 
