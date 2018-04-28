@@ -4,20 +4,57 @@
 # Shell wraps tcp_tap to make it customized program wit tap-ability Use this
 # file "as-is" or as a template for your own wrappers.
 #
-# Mandatory settings are TCP_TAP_EXEC & TCP_TAP_PORT, which need to be
+# Usage:
+# You use this wrapper exactly as the command you intend to wrap, i.e. all
+# it's arguments passed as it would be the command itself with the exception
+# that the command itself is not typed. Instead the environment variable
+# TCP_TAP_EXEC is expected to be set, preferably in one of the environment
+# files searched for.
+#
+# Note:
+# No arguments are allowed to neither this script that doesn't belong to the
+# command it wraps. All of that is managed via environment variables
+# instead.
+#
+# Example:
+# TCP_TAP_CMD=gdb
+# TCP_TAP_PORT=1903
+# tcp.sh program.elf
+#
+# Environment:
+# Even though defaulting to "gdb" & "8085", TCP_TAP_CMD & TCP_TAP_FIRST_PORT
+# environment variables should at least be set. The second needs to be
 # unique for each program you intend to extend with a "tap". For profile
-# settings TCP_TAP_PROFILE is preferred to have set.
+# settings TCP_TAP_PROFILE is preferred to have set. Preferably set all
+# environment variables in one (or several) of the environment files
+# searched for:
+#
+# * /etc/tcp_tap_profile.rc
+# * ${HOME}/.tcp_tap_profile.rc
+# * .tcp_tap_profile.rc
+# * ${TCP_TAP_PROFILE}
+#
+# All of the above are sourced in order meaning you can make course settings
+# on "top" and refine then to project and even site specific settings the
+# further down in the list you go.
+#
+# Side sessions:
+# A side session is typically a terminal console already connected to the
+# wrapper whence started. This is started **before** the wrapped process is
+# executed and therefore needs a small delay before it tries to attach. This
+# is set by the variable TCP_TAP_XTERM_DELAY and typically needs to be
+# tuned. If it's too fast, it will start just to exit immediately.
 
 
 if [ -z $TAP_SH ]; then
 TAP_SH=gdb.tap.sh
 
-#If overloaded, set to read last
+#If set, change name of variable and read last
 if [ "X${TCP_TAP_PROFILE}" != "X" ]; then
 	TCP_TAP_PROFILE_SPECIAL=$TCP_TAP_PROFILE
 fi
 
-#Real profile structure is always predicable
+#Real profile file is always known
 TCP_TAP_PROFILE=${TAP_SH}_profile.rc
 
 PTS="date +%Y:%j:%T.%N"
@@ -62,8 +99,8 @@ if [ -f "${HOME}/.${TCP_TAP_PROFILE}" ]; then
 	#echo "2: ${TCP_TAP_HAS_READ_CONFIG_FROM}"
 	#exit 0
 fi
-if [ -f ".${TCP_TAP_PROFILE}" ]; then
-	F=".${TCP_TAP_PROFILE}"
+if [ -f "$(pwd)/.${TCP_TAP_PROFILE}" ]; then
+	F="$(pwd)/.${TCP_TAP_PROFILE}"
 	source $F
 	TCP_TAP_HAS_READ_CONFIG_FROM="$TCP_TAP_HAS_READ_CONFIG_FROM: $F"
 	#echo "3: ${TCP_TAP_HAS_READ_CONFIG_FROM}"
@@ -79,8 +116,8 @@ fi
 #echo "5: ${TCP_TAP_HAS_READ_CONFIG_FROM}"
 #exit 0
 
-TCP_TAP_FIRST_PORT=${TCP_TAP_FIRST_PORT-"8080"}
-TCP_TAP_XTERM_DELAY=${TCP_TAP_XTERM_DELAY-"1"}
+TCP_TAP_FIRST_PORT=${TCP_TAP_FIRST_PORT-"8085"}
+TCP_TAP_XTERM_DELAY=${TCP_TAP_XTERM_DELAY-"3"}
 TCP_TAP_CMD=${TCP_TAP_CMD-"gdb"}
 TAP_LOG_NAME=${TAP_LOG_NAME-"/tmp/${TAP_SH}.log"}
 TAP_LOG=${TAP_LOG-"yes"}
@@ -96,7 +133,7 @@ TCP_TAP_NICNAME=${TCP_TAP_NICNAME-"127.0.0.1"}
 #Number of other sessions already in use (port collision avoidance)
 NR_INUSE=$(ps -Al | grep tcp_tap | wc -l)
 TCP_TAP_PORT=$(( TCP_TAP_FIRST_PORT + NR_INUSE ))
-		
+
 LOCAL_IF=$TCP_TAP_NICNAME
 if [ "X$TCP_TAP_NICNAME" == "X@ANY@" ]; then
 	LOCAL_IF="localhost"
