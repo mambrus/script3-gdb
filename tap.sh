@@ -125,6 +125,13 @@ TAP_SIDE_SESSION=${TAP_SIDE_SESSION-"no"}
 TAP_SIDE_SESSION_EXEC=${TAP_SIDE_SESSION_EXEC-"gdb.term.sh"}
 TCP_TAP_NICNAME=${TCP_TAP_NICNAME-"127.0.0.1"}
 
+#Pipes and plumming defaults
+TCP_TAP_LOG_STDIN=${TCP_TAP_LOG_STDIN-"/dev/null"}
+TCP_TAP_LOG_STDOUT=${TCP_TAP_LOG_STDOUT-"/dev/null"}
+TCP_TAP_LOG_STDERR=${TCP_TAP_LOG_STDERR-"/dev/null"}
+TCP_TAP_LOG_PARENT=${TCP_TAP_LOG_PARENT-"/dev/null"}
+TCP_TAP_LOG_CHILD=${TCP_TAP_LOG_CHILD-"/dev/null"}
+
 # Can be used by $TAP_SIDE_SESSION_EXEC
 # Measure this with the 'xwininfo' command-line utility. Note that you
 # embed -display here as well.
@@ -171,11 +178,11 @@ if [ "$TAP_SH" == $( basename $0 ) ]; then
 	export TCP_TAP_EXEC="$(which ${TCP_TAP_CMD})"
 	export TCP_TAP_NICNAME
 	export TCP_TAP_PORT
-	export TCP_TAP_LOG_STDIN="/dev/null"
-	export TCP_TAP_LOG_STDOUT="/dev/null"
-	export TCP_TAP_LOG_STDERR="/dev/null"
-	export TCP_TAP_LOG_PARENT="/dev/null"
-	export TCP_TAP_LOG_CHILD="/dev/null"
+	export TCP_TAP_LOG_STDIN
+	export TCP_TAP_LOG_STDOUT
+	export TCP_TAP_LOG_STDERR
+	export TCP_TAP_LOG_PARENT
+	export TCP_TAP_LOG_CHILD
 	export XAPPLRESDIR
 
 	if [ "X$TAP_SIDE_SESSION" == "Xyes" ]; then
