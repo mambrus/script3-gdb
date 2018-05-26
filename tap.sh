@@ -1,7 +1,7 @@
 #!/bin/bash
 # Author: Michael Ambrus (ambrmi09@gmail.com)
 # 2011-03-05
-# Shell wraps tcp_tap to make it customized program wit tap-ability Use this
+# Shell wraps tcp-tap to make it customized program wit tap-ability Use this
 # file "as-is" or as a template for your own wrappers.
 #
 # Usage:
@@ -60,7 +60,7 @@ TCP_TAP_PROFILE=${TAP_SH}_profile.rc
 PTS="date +%Y:%j:%T.%N"
 
 function tap() {
-	exec tcp_tap "$@"
+	exec tcp-tap "$@"
 }
 
 function log_tap() {
@@ -125,6 +125,8 @@ TAP_SIDE_SESSION=${TAP_SIDE_SESSION-"no"}
 TAP_SIDE_SESSION_EXEC=${TAP_SIDE_SESSION_EXEC-"gdb.term.sh"}
 TCP_TAP_NICNAME=${TCP_TAP_NICNAME-"127.0.0.1"}
 
+TCP_TAP_FIFO_PRE_NAME=${TCP_TAP_FIFO_PRE_NAME-"/tmp/gdbtap_"}
+
 #Pipes and plumming defaults
 TCP_TAP_LOG_STDIN=${TCP_TAP_LOG_STDIN-"/dev/null"}
 TCP_TAP_LOG_STDOUT=${TCP_TAP_LOG_STDOUT-"/dev/null"}
@@ -138,7 +140,7 @@ TCP_TAP_LOG_CHILD=${TCP_TAP_LOG_CHILD-"/dev/null"}
 #export XTELNET_GEOMETRY=${XTELNET_GEOMETRY-"-geometry 114x58+10+49"}
 
 #Number of other sessions already in use (port collision avoidance)
-NR_INUSE=$(ps -Al | grep tcp_tap | wc -l)
+NR_INUSE=$(ps -Al | grep tcp-tap | wc -l)
 TCP_TAP_PORT=$(( TCP_TAP_FIRST_PORT + NR_INUSE ))
 
 LOCAL_IF=$TCP_TAP_NICNAME
@@ -178,6 +180,7 @@ if [ "$TAP_SH" == $( basename $0 ) ]; then
 	export TCP_TAP_EXEC="$(which ${TCP_TAP_CMD})"
 	export TCP_TAP_NICNAME
 	export TCP_TAP_PORT
+	export TCP_TAP_FIFO_PRE_NAME
 	export TCP_TAP_LOG_STDIN
 	export TCP_TAP_LOG_STDOUT
 	export TCP_TAP_LOG_STDERR
@@ -202,6 +205,7 @@ if [ "$TAP_SH" == $( basename $0 ) ]; then
 	log_tap "	TCP_TAP_EXEC=$TCP_TAP_EXEC"
 	log_tap "	TCP_TAP_NICNAME=$TCP_TAP_NICNAME"
 	log_tap "	TCP_TAP_PORT=$TCP_TAP_PORT"
+	log_tap "	TCP_TAP_FIFO_PRE_NAME=$TCP_TAP_FIFO_PRE_NAME"
 	log_tap "	TCP_TAP_LOG_STDIN=$TCP_TAP_LOG_STDIN"
 	log_tap "	TCP_TAP_LOG_STDOUT=$TCP_TAP_LOG_STDOUT"
 	log_tap "	TCP_TAP_LOG_STDERR=$TCP_TAP_LOG_STDERR"
