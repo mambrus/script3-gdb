@@ -126,6 +126,7 @@ TAP_SIDE_SESSION_EXEC=${TAP_SIDE_SESSION_EXEC-"gdb.term.sh"}
 TCP_TAP_NICNAME=${TCP_TAP_NICNAME-"127.0.0.1"}
 
 TCP_TAP_FIFO_PRE_NAME=${TCP_TAP_FIFO_PRE_NAME-"/tmp/gdbtap_"}
+TCP_TAP_INUSE_AUTOINC=${TCP_TAP_INUSE_AUTOINC-"no"}
 
 #Pipes and plumming defaults
 TCP_TAP_LOG_STDIN=${TCP_TAP_LOG_STDIN-"/dev/null"}
@@ -140,7 +141,11 @@ TCP_TAP_LOG_CHILD=${TCP_TAP_LOG_CHILD-"/dev/null"}
 #export XTELNET_GEOMETRY=${XTELNET_GEOMETRY-"-geometry 114x58+10+49"}
 
 #Number of other sessions already in use (port collision avoidance)
-NR_INUSE=$(ps -Al | grep tcp-tap | wc -l)
+if [ "X$TCP_TAP_INUSE_AUTOINC" == "Xyes" ]; then
+	NR_INUSE=$(ps -Al | grep tcp-tap | wc -l)
+else
+	NR_INUSE=0
+fi
 TCP_TAP_PORT=$(( TCP_TAP_FIRST_PORT + NR_INUSE ))
 
 LOCAL_IF=$TCP_TAP_NICNAME
@@ -181,6 +186,7 @@ if [ "$TAP_SH" == $( basename $0 ) ]; then
 	export TCP_TAP_NICNAME
 	export TCP_TAP_PORT
 	export TCP_TAP_FIFO_PRE_NAME
+	export TCP_TAP_INUSE_AUTOINC
 	export TCP_TAP_LOG_STDIN
 	export TCP_TAP_LOG_STDOUT
 	export TCP_TAP_LOG_STDERR
@@ -206,6 +212,7 @@ if [ "$TAP_SH" == $( basename $0 ) ]; then
 	log_tap "	TCP_TAP_NICNAME=$TCP_TAP_NICNAME"
 	log_tap "	TCP_TAP_PORT=$TCP_TAP_PORT"
 	log_tap "	TCP_TAP_FIFO_PRE_NAME=$TCP_TAP_FIFO_PRE_NAME"
+	log_tap "	TCP_TAP_INUSE_AUTOINC=$TCP_TAP_INUSE_AUTOINC"
 	log_tap "	TCP_TAP_LOG_STDIN=$TCP_TAP_LOG_STDIN"
 	log_tap "	TCP_TAP_LOG_STDOUT=$TCP_TAP_LOG_STDOUT"
 	log_tap "	TCP_TAP_LOG_STDERR=$TCP_TAP_LOG_STDERR"

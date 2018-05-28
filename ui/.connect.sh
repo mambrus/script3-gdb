@@ -22,7 +22,7 @@ RLWRAP=$(which rlwrap)
 
 Options. Defautls within []:
   -h              This help
-  -p              port [$(( TCP_TAP_PORT - 1 ))]
+  -p              port [${TCP_TAP_PORT}]
   -H              host [$LOCAL_IF]
 
 Example:
@@ -66,5 +66,5 @@ then
 	exit 1
 fi
 	CON_HOST=${CON_HOST-${LOCAL_IF}}
-	CON_PORT=${CON_PORT-$(( TCP_TAP_PORT - 1 ))}
+	CON_PORT=${CON_PORT-${TCP_TAP_PORT}}
 
